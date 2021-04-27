@@ -27,3 +27,12 @@ all.matches.df <- data.frame(rbindlist(matches.list, fill = TRUE)) #combining al
 
 #cleaning matches data - removing columns with NA values
 columns.to.keep <- names(which(unlist(lapply(all.matches.df, function(x) length(which(is.na(x)))))==0))
+
+all.matches.clean <- all.matches.df[,columns.to.keep]
+str(all.matches.clean)
+
+#converting character variables to numeric
+all.matches.clean$match_week <- as.numeric(all.matches.clean$match_week)
+all.matches.clean$home_score <- as.numeric(all.matches.clean$home_score)
+all.matches.clean$away_score <- as.numeric(all.matches.clean$away_score)
+
