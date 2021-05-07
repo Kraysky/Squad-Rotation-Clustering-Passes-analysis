@@ -118,6 +118,11 @@ for(i in 1:length(event.files)){
   pass.team2.df <- pass.team2.df %>% group_by("Possession") %>% mutate(seq = row_number())
   pass.team2.df$team_id <- teamids[2]
   
+  pass.list <- list(pass.team1.df, pass.team2.df)
+  
+  match.id <- strsplit(basename(event.files[1]),"[.]")[[1]][1]
+  
+  event.list[[match.id]] <- list(starting.x11.list, pass.list)
   }
 
 
