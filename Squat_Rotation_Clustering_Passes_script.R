@@ -1,6 +1,7 @@
 #loading neccessary libraries
 library(rjson)
 library(data.table)
+library(dplyr)
 
 #loading competitions data from JSON file into a list
 competitions <- fromJSON(file = "C:\\Users\\pkrajewski\\Desktop\\data\\competitions.json")
@@ -66,7 +67,6 @@ for(i in 1:length(event.files)){
   pass.index <- which(unlist(lapply(event.temp, function(x) x$type$name)) =="Pass")
   
   pass.team1 <- pass.index[which(unlist(lapply(pass.index, function(x) event.temp[[x]]$team$id))==teamids[1])]
-  
   pass.team1.df <- data.frame(matrix(NA,nrow=1, ncol=11))
   colnames(pass.team1.df) <- c("Possesion", "Passer", "X.Pass", "Y.Pass",
                                "Pass.Type", "Receiver", "X.Receive", "Y.Receive",
@@ -88,8 +88,36 @@ for(i in 1:length(event.files)){
     pass.team1.df <- rbind(pass.team1.df, row.toadd)
   }
   pass.team1.df <- pass.team1.df[-1,]
-  pass.team1.df[,c(1:4,6:10)] <- lapply(pass.team1.df[,c(1:4,6:10)], as.numeric)
+  pass.team1.df[,c(1:4,6:10)] <- lapply(pass.team1.df[,c(1:4,6:10)],as.numeric)
+  pass.team1.df <- pass.team1.df %>% group_by("Possession") %>% mutate(seq = row_number())
+  pass.team1.df$team_id <- teamids[1]
   
-}
+  pass.team2 <- pass.index[which(unlist(lapply(pass.index, function(x) event.temp[[x]]$team$id))==teamids[2])]
+  pass.team2.df <- data.frame(matrix(NA,nrow=1, ncol=11))
+  colnames(pass.team2.df) <- c("Possesion", "Passer", "X.Pass", "Y.Pass",
+                               "Pass.Type", "Receiver", "X.Receive", "Y.Receive",
+                               "Pass.Length", "Pass.Angle", "Body.Part")
+  
+  for(p in 1:length(pass.team2)){
+    pass.temp <- event.temp[[pass.team2[p]]]
+    possession <- pass.temp$possession
+    passer <- pass.temp$player$id
+    pass.location <- pass.temp$location
+    pass.type <- pass.temp$pass$height$name
+    receiver <- pass.temp$pass$recipient$id
+    receive.location <- pass.temp$pass$end_location
+    pass.length <- pass.temp$pass$length
+    pass.angle <- pass.temp$pass$angle
+    body.part <- pass.temp$pass$body_part$name
+    
+    row.toadd <- c(possession, passer, pass.location, pass.type, receiver, receive.location, pass.length, pass.angle, body.part)
+    pass.team2.df <- rbind(pass.team2.df, row.toadd)
+  }
+  pass.team2.df <- pass.team2.df[-1,]
+  pass.team2.df[,c(1:4,6:10)] <- lapply(pass.team2.df[,c(1:4,6:10)],as.numeric)
+  pass.team2.df <- pass.team2.df %>% group_by("Possession") %>% mutate(seq = row_number())
+  pass.team2.df$team_id <- teamids[2]
+  
+  }
 
 
