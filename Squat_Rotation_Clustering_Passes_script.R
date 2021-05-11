@@ -147,15 +147,23 @@ for(w in 1:length(wsl.teams)){
   team.matches$GD <- team.matches$home_score - team.matches$away_score
   
   team.events.index <- which(names(event.list) %in% team.matches$match_id)
-  team.events <- event.list[team.events.index]
+  team.events <- event.list[team.events.index] }
   team.id <- as.numeric(unique(matches.wsl.1819[which(matches.wsl.1819$home_team.home_team_name == wsl.teams[w]),]$home_team.home_team_id))
   team.matches$Team.GD <- ifelse(team.matches$home_team.home_team_id == team.id, team.matches$GD, team.matches$GD*-1)
   team.matches$Result <- ifelse(team.matches$Team.GD > 0, "W",
                         ifelse(team.matches$Team.GD == 0, "D", "L"))
   
   for(i in 1:length(team.events)){
+    starting.x11 <- team.events[[i]][[1]]
+    starting.x11.index <- which(lapply(starting.x11, function(x) unique(x$team_id)) == team.id)
     
+    team.11 <- starting.x11[[starting.x11.index]]
+    team.starting.x11[[wsl.teams[w]]][[1]] <- team.11$player.name
   }
   
+  num.matches <- length(team.events)
+  squad.rotation <- c(0, sapply(seq(1:(num.matches-1)), function(x) length(setdiff(team.starting.x11[[w]][[x]], team.starting.x11[[w]][[x+1]]))))
+  team.matches$Rotated <- squad.rotation
+  squad.rotation.list[[w]] <- team.matches[,c("matches_week", "Result", "Rotated")]
     }
 
