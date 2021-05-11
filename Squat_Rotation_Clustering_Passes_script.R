@@ -147,7 +147,7 @@ for(w in 1:length(wsl.teams)){
   team.matches$GD <- team.matches$home_score - team.matches$away_score
   
   team.events.index <- which(names(event.list) %in% team.matches$match_id)
-  team.events <- event.list[team.events.index] }
+  team.events <- event.list[team.events.index]
   team.id <- as.numeric(unique(matches.wsl.1819[which(matches.wsl.1819$home_team.home_team_name == wsl.teams[w]),]$home_team.home_team_id))
   team.matches$Team.GD <- ifelse(team.matches$home_team.home_team_id == team.id, team.matches$GD, team.matches$GD*-1)
   team.matches$Result <- ifelse(team.matches$Team.GD > 0, "W",
@@ -165,5 +165,16 @@ for(w in 1:length(wsl.teams)){
   squad.rotation <- c(0, sapply(seq(1:(num.matches-1)), function(x) length(setdiff(team.starting.x11[[w]][[x]], team.starting.x11[[w]][[x+1]]))))
   team.matches$Rotated <- squad.rotation
   squad.rotation.list[[w]] <- team.matches[,c("matches_week", "Result", "Rotated")]
-    }
+}
+
+result.colors <- c("W"="forestgreen","L"="red","D" = "yellow") #define a set of colors to use in our plot
+
+#ggplot is where you bind the data. the aes stands for aesthetic and defines what data is bound to what part of the graph
+ggplot(data=squad.rotation.list[[1]], aes(x=match_week,y=Rotated,fill=Result)) + geom_bar(stat="identity",width=0.5)+
+  scale_fill_manual(values=result.colors)
+
+all.squad.rotations <- ldply(squad.rotation.list,.id="Team") #binds all the rows of the list elements together and adds the list element name as an additional column
+
+ggplot(data=all.squad.rotations, aes(x=match_week,y=Rotated,fill=Result)) + geom_bar(stat="identity",width=0.5)+
+  scale_fill_manual(values=result.colors) + facet_grid(rows=vars(Team)) #adds a plot for each team
 
