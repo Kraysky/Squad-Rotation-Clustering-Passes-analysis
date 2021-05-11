@@ -1,3 +1,5 @@
+##PREPARING DATA
+
 #loading neccessary libraries
 library(rjson)
 library(data.table)
@@ -125,4 +127,35 @@ for(i in 1:length(event.files)){
   event.list[[match.id]] <- list(starting.x11.list, pass.list)
   }
 
+
+##ANALYSIS
+
+# squad rotation per match / we will use competition_id = 37 and season_id = 4
+
+matches.wsl.1819 <- all.matches.clean[which(all.matches.clean$competition.competition_id == 37 & all.matches.clean$season.season_id == 4),]
+matches.wsl.1819 <- matches.wsl.1819[order(matches.wsl.1819$match_week),]
+
+wsl.teams <- unique(matches.wsl.1819$home_team.home_team_name)
+
+squad.rotation.list <- list()
+team.starting.x11 <- list()
+for(w in 1:length(wsl.teams)){
+  squad.rotation.list[[wsl.teams[w]]] <- list()
+  team.starting.x11[[wsl.teams[w]]] <- list()
+  team.matches <- matches.wsl.1819[which(matches.wsl.1819$home_team.home_team_name == wsl.teams[w] |
+                              matches.wsl.1819$away_team.away_team_name == wsl.teams[w]),]
+  team.matches$GD <- team.matches$home_score - team.matches$away_score
+  
+  team.events.index <- which(names(event.list) %in% team.matches$match_id)
+  team.events <- event.list[team.events.index]
+  team.id <- as.numeric(unique(matches.wsl.1819[which(matches.wsl.1819$home_team.home_team_name == wsl.teams[w]),]$home_team.home_team_id))
+  team.matches$Team.GD <- ifelse(team.matches$home_team.home_team_id == team.id, team.matches$GD, team.matches$GD*-1)
+  team.matches$Result <- ifelse(team.matches$Team.GD > 0, "W",
+                        ifelse(team.matches$Team.GD == 0, "D", "L"))
+  
+  for(i in 1:length(team.events)){
+    
+  }
+  
+    }
 
